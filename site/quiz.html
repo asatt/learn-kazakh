@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kazakh Quiz</title>
+  <script>try{var t=JSON.parse(localStorage.getItem("lk.theme"));if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}</script>
+  <link rel="stylesheet" href="css/style.css">
+  <script type="module" src="js/quiz.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a class="brand" href="./">Қазақ<span>ша</span></a>
+      <nav class="nav">
+        <a href="./">Dictionary</a>
+        <a href="quiz.html" aria-current="page">Quiz</a>
+      </nav>
+      <button id="theme-toggle" class="secondary small theme-toggle" type="button">◐ Auto</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <p id="load-error" class="error" hidden></p>
+
+    <form id="setup" class="panel" hidden>
+      <h1>Practice words</h1>
+
+      <fieldset>
+        <legend>Mode</legend>
+        <div class="segmented">
+          <label><input type="radio" name="mode" value="choice"> Pick the translation</label>
+          <label><input type="radio" name="mode" value="typing"> Type the translation</label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Direction</legend>
+        <div class="segmented">
+          <label><input type="radio" name="direction" value="kk-ru"> Kazakh → Russian</label>
+          <label><input type="radio" name="direction" value="ru-kk"> Russian → Kazakh</label>
+          <label><input type="radio" name="direction" value="mixed"> Mixed</label>
+        </div>
+      </fieldset>
+
+      <fieldset class="settings-row">
+        <div id="options-field">
+          <label for="options">Options per question</label>
+          <select id="options" name="options">
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+          </select>
+        </div>
+        <div>
+          <label for="question-count">Questions</label>
+          <select id="question-count" name="questionCount">
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="50">50</option>
+            <option value="all">All selected words</option>
+          </select>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Categories</legend>
+        <div id="category-picks" class="category-picks"></div>
+        <div class="actions">
+          <button id="select-all" class="ghost small" type="button">Select all</button>
+          <button id="select-none" class="ghost small" type="button">Clear</button>
+        </div>
+      </fieldset>
+
+      <div class="actions">
+        <button type="submit" id="start">Start</button>
+        <span id="pool-size" class="muted small"></span>
+        <span class="spacer"></span>
+        <button id="reset-progress" class="ghost small" type="button">Reset progress</button>
+      </div>
+      <p class="muted small">Words you often miss come up more often.</p>
+    </form>
+
+    <section id="play" hidden>
+      <div class="play-bar">
+        <span id="progress-text"></span>
+        <span id="score-text"></span>
+        <span class="spacer"></span>
+        <button id="quit" class="ghost small" type="button">End session</button>
+      </div>
+      <div class="progress-track"><div id="progress-fill" class="progress-fill"></div></div>
+
+      <div class="card">
+        <p id="task" class="muted small"></p>
+        <p id="prompt" class="prompt"></p>
+
+        <div id="choices" class="choices"></div>
+
+        <form id="typing" class="typing" hidden>
+          <input id="answer" type="text" autocomplete="off" spellcheck="false" autocapitalize="off"
+                 aria-label="Your translation">
+          <div id="kz-keys" class="kz-keys" aria-label="Kazakh letters"></div>
+          <div class="actions">
+            <button id="check" type="submit">Check</button>
+            <button id="skip" class="secondary" type="button">I don't know</button>
+          </div>
+        </form>
+
+        <div id="feedback" class="feedback" aria-live="polite" hidden></div>
+        <div class="next-row"><button id="next" type="button" hidden>Next →</button></div>
+      </div>
+    </section>
+
+    <section id="summary" class="panel" hidden>
+      <h2>Session complete</h2>
+      <p id="final-score" class="score-big"></p>
+      <p id="final-text" class="muted"></p>
+      <ul id="missed" class="missed-list"></ul>
+      <div class="actions">
+        <button id="retry-missed" type="button">Retry mistakes</button>
+        <button id="again" class="secondary" type="button">New session</button>
+        <button id="to-setup" class="ghost" type="button">Change settings</button>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
