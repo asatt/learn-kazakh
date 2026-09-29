@@ -1,5 +1,6 @@
 // Quiz page: multiple-choice and typing modes in either direction, with per-word progress in localStorage.
 
+import { playWord, speakButton } from './audio.js';
 import { acceptedAnswers, el, fold, loadWords, normalize, shuffle, storage, wordKey } from './data.js';
 import { initThemeToggle } from './theme.js';
 
@@ -35,6 +36,7 @@ function loadSettings() {
     options: String(saved.options ?? '6'),
     questionCount: String(saved.questionCount ?? '20'),
     showTranscription: saved.showTranscription ?? true,
+    autoPlay: saved.autoPlay ?? false,
     categories,
   };
 }
@@ -47,6 +49,7 @@ function readSettings() {
     options: form.get('options'),
     questionCount: form.get('questionCount'),
     showTranscription: form.has('showTranscription'),
+    autoPlay: form.has('autoPlay'),
     categories: [...setup.querySelectorAll('#category-picks input:checked')].map((input) => input.value),
   };
 }
@@ -57,6 +60,7 @@ function renderSetup() {
   setup.elements.options.value = settings.options;
   setup.elements.questionCount.value = settings.questionCount;
   setup.elements.showTranscription.checked = settings.showTranscription;
+  setup.elements.autoPlay.checked = settings.autoPlay;
   $('category-picks').replaceChildren(
     ...data.categories.map((cat) =>
       el(
@@ -161,6 +165,9 @@ function showQuestion() {
   $('prompt').textContent = question.prompt;
   $('prompt').lang = question.from;
   $('prompt-tr').textContent = question.from === 'kk' && settings.showTranscription ? question.transcription : '';
+  const promptSpeak = question.from === 'kk' ? speakButton(question.word) : null;
+  $('prompt-speak').replaceChildren(...(promptSpeak ? [promptSpeak] : []));
+  if (promptSpeak && settings.autoPlay) playWord(question.word, promptSpeak);
   $('feedback').hidden = true;
   $('next').hidden = true;
 
@@ -255,10 +262,12 @@ function finishAnswer(result, skipped = false) {
       ' ',
       el('span', { class: 'answer', lang: question.to }, question.answer),
       question.to === 'kk' && question.transcription && ` ${question.transcription}`,
+      question.to === 'kk' && speakButton(question.word),
     ),
     question.word.note && el('p', { class: 'small' }, question.word.note),
   );
   feedback.hidden = false;
+  if (question.to === 'kk' && settings.autoPlay) playWord(question.word, feedback.querySelector('.speak'));
 
   $('score-text').textContent = `${session.correct} correct`;
   $('progress-fill').style.width = `${((session.index + 1) / session.questions.length) * 100}%`;
@@ -289,9 +298,21 @@ function showSummary() {
       el(
         'li',
         {},
-        el('span', { lang: q.from }, q.prompt, q.from === 'kk' && el('span', { class: 'tr' }, q.transcription)),
+        el(
+          'span',
+          { lang: q.from },
+          q.from === 'kk' && speakButton(q.word),
+          q.prompt,
+          q.from === 'kk' && el('span', { class: 'tr' }, q.transcription),
+        ),
         el('span', { class: 'arrow' }, '→'),
-        el('strong', { lang: q.to }, q.answer, q.to === 'kk' && el('span', { class: 'tr' }, q.transcription)),
+        el(
+          'strong',
+          { lang: q.to },
+          q.to === 'kk' && speakButton(q.word),
+          q.answer,
+          q.to === 'kk' && el('span', { class: 'tr' }, q.transcription),
+        ),
       ),
     ),
   );

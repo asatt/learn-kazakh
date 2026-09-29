@@ -65,7 +65,10 @@
       </fieldset>
 
       <fieldset>
-        <label class="checkbox"><input type="checkbox" name="showTranscription"> Show transcription with Kazakh words</label>
+        <div class="checkbox-list">
+          <label class="checkbox"><input type="checkbox" name="showTranscription"> Show transcription with Kazakh words</label>
+          <label class="checkbox"><input type="checkbox" name="autoPlay"> Play Kazakh words aloud automatically</label>
+        </div>
       </fieldset>
 
       <fieldset>
@@ -97,7 +100,10 @@
 
       <div class="card">
         <p id="task" class="muted small"></p>
-        <p id="prompt" class="prompt"></p>
+        <div class="prompt-row">
+          <p id="prompt" class="prompt"></p>
+          <span id="prompt-speak"></span>
+        </div>
         <p id="prompt-tr" class="prompt-tr"></p>
 
         <div id="choices" class="choices"></div>
@@ -129,5 +135,10 @@
       </div>
     </section>
   </main>
+
+  <footer class="site-footer">
+    Pronunciation is synthetic: generated with <a href="https://github.com/OHF-Voice/piper1-gpl">Piper</a> using a voice
+    trained on <a href="https://github.com/IS2AI/Kazakh_TTS">ISSAI KazakhTTS</a> (CC BY 4.0).
+  </footer>
 </body>
 </html>

@@ -39,6 +39,34 @@ node scripts/serve.mjs
 
 Open <http://localhost:8000>. The server rebuilds the word list on every request, so edit a file and reload.
 
+Play buttons stay disabled until you generate the audio. This needs Python 3.10 or later and downloads the voice model
+(about 130 MB) on the first run:
+
+```sh
+python3 -m venv .venv
+.venv/bin/pip install -r scripts/requirements.txt
+node scripts/build.mjs
+.venv/bin/python scripts/tts.py
+```
+
+## Pronunciation audio
+
+`scripts/tts.py` generates an MP3 for every Kazakh word with [Piper](https://github.com/OHF-Voice/piper1-gpl), an
+open-source text-to-speech engine. Piper runs inside the build, so the site plays static files and calls no
+external service. The deploy workflow caches the voice model and the audio, so each push only generates files for
+new or changed words.
+
+Set the voice in `tts.json`:
+
+- `voice`: a Piper voice name. The Kazakh voices are `kk_KZ-issai-high` (six speakers), `kk_KZ-iseke-x_low`, and
+  `kk_KZ-raya-x_low`.
+- `speaker`: the speaker number for multi-speaker voices, starting at 0.
+- `lengthScale`: speaking speed. Values above `1.0` are slower, which can help with new words.
+
+Changing `tts.json` regenerates all audio on the next build. The audio is synthetic and can stress a word wrong;
+trust your teacher over it. The Kazakh voices are trained on [ISSAI KazakhTTS](https://github.com/IS2AI/Kazakh_TTS)
+(CC BY 4.0), which the site credits in its footer.
+
 ## Deploy
 
 1. Push the repository to GitHub.
@@ -55,6 +83,7 @@ Open <http://localhost:8000>. The server rebuilds the word list on every request
   correct, and the page shows the right spelling. Buttons for `ә ғ қ ң ө ұ ү һ і` help without a Kazakh keyboard layout.
 - **Progress:** the browser remembers which words you miss and shows them more often. Progress stays in that
   browser only.
+- **Pronunciation:** a play button next to each Kazakh word. The quiz can also play Kazakh words automatically.
 - **Transcription:** shown under Kazakh words in the dictionary, in quiz answers, and optionally with the question.
 - **Theme:** light, dark, or following the system setting.
 
@@ -64,6 +93,7 @@ Open <http://localhost:8000>. The server rebuilds the word list on every request
 words/                        vocabulary, one Markdown file per category
 scripts/build.mjs             words/*.md → site/data/words.json, with validation
 scripts/serve.mjs             local preview server
+scripts/tts.py                pronunciation audio with Piper, configured by tts.json
 site/                         static site: HTML, CSS, and vanilla JavaScript
 .github/workflows/pages.yml   build and deploy to GitHub Pages
 ```

@@ -328,7 +328,7 @@ input::placeholder {
 
 .word {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
   gap: 2px 16px;
   padding: 10px 16px;
   border-top: 1px solid var(--border);
@@ -339,7 +339,84 @@ input::placeholder {
 }
 
 .word .kk {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
   font-weight: 600;
+}
+
+.speak {
+  flex: none;
+  width: 32px;
+  min-height: 32px;
+  height: 32px;
+  padding: 0;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.speak:hover {
+  background: var(--accent);
+  color: var(--accent-text);
+}
+
+.speak.playing {
+  background: var(--accent);
+  color: var(--accent-text);
+}
+
+.speak:disabled {
+  background: var(--surface-2);
+  color: var(--muted);
+}
+
+.word .speak {
+  margin-top: -3px;
+}
+
+.prompt-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 4px 0 24px;
+}
+
+.prompt-row .prompt {
+  margin: 0;
+}
+
+.checkbox-list {
+  display: grid;
+  gap: 8px;
+}
+
+.feedback .speak {
+  width: 28px;
+  height: 28px;
+  min-height: 28px;
+  vertical-align: middle;
+  margin-left: 4px;
+}
+
+.missed-list .speak {
+  width: 26px;
+  height: 26px;
+  min-height: 26px;
+  vertical-align: middle;
+  margin-right: 6px;
+}
+
+.prompt-row .speak {
+  width: 44px;
+  height: 44px;
+}
+
+.site-footer {
+  padding: 24px 16px 40px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.8125rem;
 }
 
 /* Transcription, for example [sæˈlem]. */
@@ -507,6 +584,7 @@ legend {
 
 .prompt {
   margin: 4px 0 24px;
+  min-width: 0;
   font-size: clamp(1.75rem, 6vw, 2.5rem);
   font-weight: 700;
   line-height: 1.2;
@@ -559,6 +637,10 @@ legend {
 .choice:disabled {
   opacity: 1;
   cursor: default;
+}
+
+.choice:disabled:not(.correct):not(.wrong):hover {
+  background: var(--surface);
 }
 
 .choice kbd {

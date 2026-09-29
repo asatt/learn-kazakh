@@ -5,9 +5,13 @@
 // free and only the Kazakh and Russian columns are required. An optional numeric prefix such as "01-" sets the
 // category order and is dropped from the category ID.
 //
+// Each word also gets an "audio" path whose file name hashes the tts.json settings and the Kazakh text, so
+// scripts/tts.py regenerates a file only when the word or the voice changes.
+//
 // Malformed rows fail the build; duplicate Kazakh words only produce a warning because the same word can
 // legitimately belong to several categories.
 
+import { createHash } from 'node:crypto';
 import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -15,6 +19,8 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const wordsDir = path.join(root, 'words');
 const outFile = path.join(root, 'site', 'data', 'words.json');
+
+const ttsFile = path.join(root, 'tts.json');
 
 const SEPARATOR_CELL = /^:?-+:?$/;
 
@@ -102,7 +108,16 @@ function parseFile(text, file) {
   return { name, rows, errors };
 }
 
+function audioPath(tts, text) {
+  const hash = createHash('sha1')
+    .update(JSON.stringify([tts.voice, tts.speaker, tts.lengthScale, text]))
+    .digest('hex')
+    .slice(0, 16);
+  return `audio/${hash}.mp3`;
+}
+
 export async function buildWords() {
+  const tts = JSON.parse(await readFile(ttsFile, 'utf8'));
   const files = (await readdir(wordsDir)).filter((f) => f.endsWith('.md')).sort();
   const categories = [];
   const words = [];
@@ -124,7 +139,7 @@ export async function buildWords() {
       const key = kk.toLowerCase();
       if (seen.has(key)) warnings.push(`${where}: "${kk}" is also defined at ${seen.get(key)}`);
       else seen.set(key, where);
-      words.push({ kk, tr, ru, note, category: id });
+      words.push({ kk, tr, ru, note, category: id, audio: audioPath(tts, kk) });
     }
   }
 

@@ -1,5 +1,6 @@
 // Dictionary page: search across both languages and filter by category.
 
+import { speakButton } from './audio.js';
 import { el, fold, loadWords } from './data.js';
 import { initThemeToggle } from './theme.js';
 
@@ -69,8 +70,8 @@ function renderWords() {
               el(
                 'span',
                 { class: 'kk' },
-                el('span', { lang: 'kk' }, w.kk),
-                w.tr && el('span', { class: 'tr' }, w.tr),
+                speakButton(w),
+                el('span', {}, el('span', { lang: 'kk' }, w.kk), w.tr && el('span', { class: 'tr' }, w.tr)),
               ),
               el('span', { class: 'ru', lang: 'ru' }, w.ru),
               w.note && el('span', { class: 'note' }, w.note),
