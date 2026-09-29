@@ -34,6 +34,7 @@ function loadSettings() {
     direction: ['kk-ru', 'ru-kk', 'mixed'].includes(saved.direction) ? saved.direction : 'kk-ru',
     options: String(saved.options ?? '6'),
     questionCount: String(saved.questionCount ?? '20'),
+    showTranscription: saved.showTranscription ?? true,
     categories,
   };
 }
@@ -45,6 +46,7 @@ function readSettings() {
     direction: form.get('direction'),
     options: form.get('options'),
     questionCount: form.get('questionCount'),
+    showTranscription: form.has('showTranscription'),
     categories: [...setup.querySelectorAll('#category-picks input:checked')].map((input) => input.value),
   };
 }
@@ -54,6 +56,7 @@ function renderSetup() {
   setup.elements.direction.value = settings.direction;
   setup.elements.options.value = settings.options;
   setup.elements.questionCount.value = settings.questionCount;
+  setup.elements.showTranscription.checked = settings.showTranscription;
   $('category-picks').replaceChildren(
     ...data.categories.map((cat) =>
       el(
@@ -109,7 +112,7 @@ function pickWords(pool, count) {
 function makeQuestion(word, direction) {
   const dir = direction === 'mixed' ? (Math.random() < 0.5 ? 'kk-ru' : 'ru-kk') : direction;
   const [from, to] = dir === 'kk-ru' ? ['kk', 'ru'] : ['ru', 'kk'];
-  return { word, from, to, prompt: word[from], answer: word[to] };
+  return { word, from, to, prompt: word[from], answer: word[to], transcription: word.tr };
 }
 
 // Distractors come from the same category first, so they stay plausible. Words whose prompt matches this
@@ -157,6 +160,7 @@ function showQuestion() {
   $('task').textContent = `Translate into ${LANGUAGE_NAMES[question.to]}`;
   $('prompt').textContent = question.prompt;
   $('prompt').lang = question.from;
+  $('prompt-tr').textContent = question.from === 'kk' && settings.showTranscription ? question.transcription : '';
   $('feedback').hidden = true;
   $('next').hidden = true;
 
@@ -244,7 +248,14 @@ function finishAnswer(result, skipped = false) {
   const feedback = $('feedback');
   feedback.className = `feedback ${result}`;
   feedback.replaceChildren(
-    el('p', {}, headline, ' ', el('span', { class: 'answer', lang: question.to }, question.answer)),
+    el(
+      'p',
+      {},
+      headline,
+      ' ',
+      el('span', { class: 'answer', lang: question.to }, question.answer),
+      question.to === 'kk' && question.transcription && ` ${question.transcription}`,
+    ),
     question.word.note && el('p', { class: 'small' }, question.word.note),
   );
   feedback.hidden = false;
@@ -278,9 +289,9 @@ function showSummary() {
       el(
         'li',
         {},
-        el('span', { lang: q.from }, q.prompt),
+        el('span', { lang: q.from }, q.prompt, q.from === 'kk' && el('span', { class: 'tr' }, q.transcription)),
         el('span', { class: 'arrow' }, '→'),
-        el('strong', { lang: q.to }, q.answer),
+        el('strong', { lang: q.to }, q.answer, q.to === 'kk' && el('span', { class: 'tr' }, q.transcription)),
       ),
     ),
   );

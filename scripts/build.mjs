@@ -1,8 +1,9 @@
 // Builds site/data/words.json from the Markdown tables in words/.
 //
 // Each words/*.md file is one category: the first H1 heading is the category name, and every table row after the
-// header and separator rows is one word pair (Kazakh | Russian | optional note). An optional numeric prefix such as
-// "01-" sets the category order and is dropped from the category ID.
+// header and separator rows is one word pair. Columns are matched by header name (see COLUMNS), so their order is
+// free and only the Kazakh and Russian columns are required. An optional numeric prefix such as "01-" sets the
+// category order and is dropped from the category ID.
 //
 // Malformed rows fail the build; duplicate Kazakh words only produce a warning because the same word can
 // legitimately belong to several categories.
@@ -16,6 +17,31 @@ const wordsDir = path.join(root, 'words');
 const outFile = path.join(root, 'site', 'data', 'words.json');
 
 const SEPARATOR_CELL = /^:?-+:?$/;
+
+// Accepted header names (compared case-insensitively) for each field in words.json.
+const COLUMNS = {
+  kk: ['қазақша', 'казахский', 'kazakh'],
+  tr: ['транскрипция', 'transcription'],
+  ru: ['русский', 'russian'],
+  note: ['заметка', 'примечание', 'note', 'notes'],
+};
+const KNOWN_HEADERS = Object.values(COLUMNS).flat();
+
+// Maps header cells to field names, for example ["Қазақша", "Русский"] → ["kk", "ru"].
+function parseHeader(cells, where, errors) {
+  const fields = cells.map((cell) => {
+    const name = cell.toLowerCase();
+    const field = Object.keys(COLUMNS).find((key) => COLUMNS[key].includes(name));
+    if (!field) errors.push(`${where}: unknown column "${cell}"; use one of: ${KNOWN_HEADERS.join(', ')}`);
+    return field;
+  });
+  for (const required of ['kk', 'ru']) {
+    if (!fields.includes(required)) {
+      errors.push(`${where}: table has no ${required === 'kk' ? '"Қазақша"' : '"Русский"'} column`);
+    }
+  }
+  return fields;
+}
 
 // Splits a table row on pipes, keeping escaped "\|" as a literal pipe inside a cell.
 function splitRow(line) {
@@ -31,6 +57,7 @@ function parseFile(text, file) {
   const rows = [];
   let name = null;
   let tableRow = 0;
+  let fields = [];
 
   text.split(/\r?\n/).forEach((rawLine, i) => {
     const line = rawLine.trim();
@@ -48,7 +75,10 @@ function parseFile(text, file) {
 
     tableRow += 1;
     const cells = splitRow(line);
-    if (tableRow === 1) return;
+    if (tableRow === 1) {
+      fields = parseHeader(cells, where, errors);
+      return;
+    }
     if (tableRow === 2) {
       if (!cells.every((cell) => SEPARATOR_CELL.test(cell))) {
         errors.push(`${where}: expected a separator row like "| --- | --- | --- |" under the table header`);
@@ -56,13 +86,16 @@ function parseFile(text, file) {
       return;
     }
 
-    const [kk = '', ru = '', note = ''] = cells;
-    if (cells.length > 3) {
-      errors.push(`${where}: row has ${cells.length} columns, expected at most 3; escape a literal pipe as \\|`);
-    } else if (!kk || !ru) {
+    const row = { kk: '', tr: '', ru: '', note: '' };
+    fields.forEach((field, column) => {
+      if (field) row[field] = cells[column] ?? '';
+    });
+    if (cells.length > fields.length) {
+      errors.push(`${where}: row has ${cells.length} columns, the header has ${fields.length}; escape a literal pipe as \\|`);
+    } else if (!row.kk || !row.ru) {
       errors.push(`${where}: row needs both a Kazakh and a Russian word`);
     } else {
-      rows.push({ kk, ru, note, where });
+      rows.push({ ...row, where });
     }
   });
 
@@ -87,11 +120,11 @@ export async function buildWords() {
     if (!parsed.rows.length) warnings.push(`${relative}: no word pairs found`);
     categories.push({ id, name: parsed.name ?? id, count: parsed.rows.length });
 
-    for (const { kk, ru, note, where } of parsed.rows) {
+    for (const { kk, tr, ru, note, where } of parsed.rows) {
       const key = kk.toLowerCase();
       if (seen.has(key)) warnings.push(`${where}: "${kk}" is also defined at ${seen.get(key)}`);
       else seen.set(key, where);
-      words.push({ kk, ru, note, category: id });
+      words.push({ kk, tr, ru, note, category: id });
     }
   }
 

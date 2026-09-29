@@ -10,13 +10,17 @@ Each file in `words/` is one category. The `# Heading` is the category name show
 ```markdown
 # Семья
 
-| Қазақша | Русский    | Заметка   |
-| ------- | ---------- | --------- |
-| ана     | мать, мама |           |
-| іні     | младший брат | for a man |
+| Қазақша | Транскрипция | Русский      | Заметка   |
+| ------- | ------------ | ------------ | --------- |
+| ана     | [ɑˈnɑ]       | мать, мама   |           |
+| іні     | [ɪˈnɪ]       | младший брат | for a man |
+| бала    |              | ребёнок      |           |
 ```
 
-- Columns: Kazakh, Russian, and an optional note (grammar, examples, formality).
+- Columns are matched by header name, so their order doesn't matter. `Қазақша` and `Русский` are required;
+  `Транскрипция` and `Заметка` are optional, both as columns and per row.
+- Write the transcription in any style you like. The starter words use approximate IPA with `ˈ` before the stressed
+  syllable; check them with your teacher.
 - Separate alternative translations with commas. In typing mode, any one of them counts as correct.
 - Start a new category by adding a file. A numeric prefix such as `05-colors.md` sets the order and doesn't appear on
   the site.
@@ -51,6 +55,7 @@ Open <http://localhost:8000>. The server rebuilds the word list on every request
   correct, and the page shows the right spelling. Buttons for `ә ғ қ ң ө ұ ү һ і` help without a Kazakh keyboard layout.
 - **Progress:** the browser remembers which words you miss and shows them more often. Progress stays in that
   browser only.
+- **Transcription:** shown under Kazakh words in the dictionary, in quiz answers, and optionally with the question.
 - **Theme:** light, dark, or following the system setting.
 
 ## Layout

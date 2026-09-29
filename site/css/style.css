@@ -342,6 +342,14 @@ input::placeholder {
   font-weight: 600;
 }
 
+/* Transcription, for example [sæˈlem]. */
+.tr {
+  display: block;
+  color: var(--muted);
+  font-size: 0.875rem;
+  font-weight: 400;
+}
+
 .word .note {
   grid-column: 1 / -1;
   color: var(--muted);
@@ -503,6 +511,27 @@ legend {
   font-weight: 700;
   line-height: 1.2;
   overflow-wrap: anywhere;
+}
+
+.prompt-tr {
+  margin: -20px 0 24px;
+  color: var(--muted);
+  font-size: 1.125rem;
+}
+
+.prompt-tr:empty {
+  display: none;
+}
+
+.checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.checkbox input {
+  accent-color: var(--accent);
 }
 
 .choices {

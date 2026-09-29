@@ -66,7 +66,12 @@ function renderWords() {
             el(
               'li',
               { class: 'word' },
-              el('span', { class: 'kk', lang: 'kk' }, w.kk),
+              el(
+                'span',
+                { class: 'kk' },
+                el('span', { lang: 'kk' }, w.kk),
+                w.tr && el('span', { class: 'tr' }, w.tr),
+              ),
               el('span', { class: 'ru', lang: 'ru' }, w.ru),
               w.note && el('span', { class: 'note' }, w.note),
             ),
