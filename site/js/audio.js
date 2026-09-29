@@ -3,10 +3,31 @@
 
 import { el } from './data.js';
 
-const SPEAKER_ICON =
-  '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" ' +
-  'stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5z"/>' +
-  '<path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/></svg>';
+const SVG_NS = 'http://www.w3.org/2000/svg';
+const SPEAKER_PATHS = ['M11 5 6 9H2v6h4l5 4V5z', 'M15.5 8.5a5 5 0 0 1 0 7', 'M19 5a10 10 0 0 1 0 14'];
+
+// Built with DOM calls because the Content-Security-Policy enforces Trusted Types, which blocks innerHTML.
+function speakerIcon() {
+  const svg = document.createElementNS(SVG_NS, 'svg');
+  const attributes = {
+    viewBox: '0 0 24 24',
+    width: '18',
+    height: '18',
+    'aria-hidden': 'true',
+    fill: 'none',
+    stroke: 'currentColor',
+    'stroke-width': '2',
+    'stroke-linecap': 'round',
+    'stroke-linejoin': 'round',
+  };
+  for (const [name, value] of Object.entries(attributes)) svg.setAttribute(name, value);
+  for (const d of SPEAKER_PATHS) {
+    const path = document.createElementNS(SVG_NS, 'path');
+    path.setAttribute('d', d);
+    svg.append(path);
+  }
+  return svg;
+}
 
 let current = null;
 
@@ -32,16 +53,19 @@ export function playWord(word, button) {
 
 export function speakButton(word) {
   if (!word.audio) return null;
-  const button = el('button', {
-    type: 'button',
-    class: 'speak',
-    title: 'Listen',
-    'aria-label': `Listen: ${word.kk}`,
-    onclick: (event) => {
-      event.stopPropagation();
-      playWord(word, button);
+  const button = el(
+    'button',
+    {
+      type: 'button',
+      class: 'speak',
+      title: 'Listen',
+      'aria-label': `Listen: ${word.kk}`,
+      onclick: (event) => {
+        event.stopPropagation();
+        playWord(word, button);
+      },
     },
-  });
-  button.innerHTML = SPEAKER_ICON;
+    speakerIcon(),
+  );
   return button;
 }

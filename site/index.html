@@ -4,7 +4,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Kazakh Dictionary</title>
-  <script>try{var t=JSON.parse(localStorage.getItem("lk.theme"));if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}</script>
+  <!-- Everything loads from this site only, and scripts can't inject HTML (Trusted Types). -->
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; media-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'none'; require-trusted-types-for 'script'; trusted-types 'none'">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <script src="js/theme-init.js"></script>
   <link rel="stylesheet" href="css/style.css">
   <script type="module" src="js/dictionary.js"></script>
 </head>

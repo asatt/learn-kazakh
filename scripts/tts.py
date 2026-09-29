@@ -2,11 +2,13 @@
 
 Reads site/data/words.json (run `node scripts/build.mjs` first), writes each missing file named in a word's
 "audio" field to site/, and deletes MP3 files in site/audio/ that no word references anymore. The voice, speaker,
-and speed come from tts.json. The voice model is downloaded once into .cache/voices/.
+and speed come from tts.json. The voice model is downloaded once into .cache/voices/ and checked against the
+SHA-256 checksums in tts.json on every run, so a tampered or corrupted model stops the build.
 
 Requires the packages in scripts/requirements.txt.
 """
 
+import hashlib
 import json
 import sys
 import urllib.request
@@ -24,10 +26,19 @@ VOICES_URL = "https://huggingface.co/rhasspy/piper-voices/resolve/main"
 MP3_BITRATE_KBPS = 48
 
 
-def load_voice(name: str) -> PiperVoice:
-    """Loads a Piper voice such as "kk_KZ-issai-high", downloading it on first use."""
+def sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as file:
+        for block in iter(lambda: file.read(1 << 20), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def load_voice(name: str, checksums: dict[str, str]) -> PiperVoice:
+    """Loads a Piper voice such as "kk_KZ-issai-high", downloading it on first use and verifying its checksums."""
     locale, speaker, quality = name.split("-")
     model = MODELS_DIR / f"{name}.onnx"
+    actual = {}
     for path in (model, model.with_suffix(".onnx.json")):
         if not path.exists():
             url = f"{VOICES_URL}/{locale.split('_')[0]}/{locale}/{speaker}/{quality}/{path.name}"
@@ -35,6 +46,20 @@ def load_voice(name: str) -> PiperVoice:
             path.parent.mkdir(parents=True, exist_ok=True)
             urllib.request.urlretrieve(url, path.with_suffix(".part"))
             path.with_suffix(".part").rename(path)
+        actual[path.name] = sha256(path)
+
+    if not all(checksums.get(file) for file in actual):
+        found = "\n".join(f'    "{file}": "{digest}"' for file, digest in actual.items())
+        sys.exit(
+            f"tts.json has no SHA-256 checksums for {name}. The downloaded files hash to:\n{found}\n"
+            "Compare them with the checksums on Hugging Face, then add them to the \"sha256\" object in tts.json."
+        )
+    for file, digest in actual.items():
+        if digest != checksums[file]:
+            sys.exit(
+                f"Checksum mismatch for .cache/voices/{file}: expected {checksums[file]}, got {digest}. "
+                "Delete the file to download it again. If the mismatch persists, the upstream file has changed."
+            )
     return PiperVoice.load(model)
 
 
@@ -59,7 +84,7 @@ def main() -> None:
     missing = {path: text for path, text in wanted.items() if not (SITE_DIR / path).exists()}
 
     if missing:
-        voice = load_voice(settings["voice"])
+        voice = load_voice(settings["voice"], settings.get("sha256", {}))
         # Single-speaker voices reject a speaker ID.
         speaker = settings.get("speaker") if voice.config.num_speakers > 1 else None
         config = SynthesisConfig(speaker_id=speaker, length_scale=settings.get("lengthScale"))

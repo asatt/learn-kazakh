@@ -1,5 +1,9 @@
 {
   "voice": "kk_KZ-issai-high",
   "speaker": 0,
-  "lengthScale": 1.0
+  "lengthScale": 1.0,
+  "sha256": {
+    "kk_KZ-issai-high.onnx": "4dee767c893e8535da821447d12cb030e3569e11254c14030a1da5d8b2222c16",
+    "kk_KZ-issai-high.onnx.json": "eb145ac8712b87beda9f0266e95b98cad76acce89d4626cd8b1408234e9842f0"
+  }
 }

@@ -44,7 +44,7 @@ Play buttons stay disabled until you generate the audio. This needs Python 3.10 
 
 ```sh
 python3 -m venv .venv
-.venv/bin/pip install -r scripts/requirements.txt
+.venv/bin/pip install --require-hashes -r scripts/requirements.txt
 node scripts/build.mjs
 .venv/bin/python scripts/tts.py
 ```
@@ -63,6 +63,10 @@ Set the voice in `tts.json`:
 - `speaker`: the speaker number for multi-speaker voices, starting at 0.
 - `lengthScale`: speaking speed. Values above `1.0` are slower, which can help with new words.
 
+- `sha256`: checksums of the voice model files. The build stops if a downloaded model doesn't match them. After
+  switching voices, run `tts.py` once: it prints the new checksums for you to compare with the ones on Hugging Face
+  and add here.
+
 Changing `tts.json` regenerates all audio on the next build. The audio is synthetic and can stress a word wrong;
 trust your teacher over it. The Kazakh voices are trained on [ISSAI KazakhTTS](https://github.com/IS2AI/Kazakh_TTS)
 (CC BY 4.0), which the site credits in its footer.
@@ -73,6 +77,18 @@ trust your teacher over it. The Kazakh voices are trained on [ISSAI KazakhTTS](h
 2. In **Settings → Pages**, set **Source** to **GitHub Actions**.
 3. Push to `main`. The `Deploy site` workflow builds and publishes the site. Pull requests run the build as a
    check without deploying.
+
+## Security
+
+The site is static, so there is no server to attack. The remaining risks are in the build and the browser:
+
+- **GitHub Actions** are pinned to commit SHAs, and only the deploy job can write to GitHub Pages.
+- **Python packages** are locked with hashes in `scripts/requirements.txt`, so pip rejects a tampered package. Edit
+  `scripts/requirements.in` and regenerate the lock file with the command at the top of `requirements.txt`.
+- **The voice model** is checked against the checksums in `tts.json`.
+- **Dependabot** opens a monthly pull request to update the actions and Python packages.
+- **Content-Security-Policy:** each page loads scripts, styles, data, and audio only from the site itself. It also
+  enforces Trusted Types, which blocks HTML injection from scripts.
 
 ## Site features
 
@@ -94,6 +110,7 @@ words/                        vocabulary, one Markdown file per category
 scripts/build.mjs             words/*.md → site/data/words.json, with validation
 scripts/serve.mjs             local preview server
 scripts/tts.py                pronunciation audio with Piper, configured by tts.json
+scripts/requirements.in       Python dependencies; requirements.txt is the hashed lock file
 site/                         static site: HTML, CSS, and vanilla JavaScript
 .github/workflows/pages.yml   build and deploy to GitHub Pages
 ```

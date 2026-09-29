@@ -1,5 +1,5 @@
 // Theme toggle that cycles Auto → Light → Dark. "Auto" follows the operating system setting.
-// An inline script in each page's <head> applies the saved theme before first paint to avoid a flash.
+// theme-init.js applies the saved theme before first paint to avoid a flash.
 
 import { storage } from './data.js';
 
