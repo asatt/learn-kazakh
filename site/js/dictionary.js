@@ -2,7 +2,7 @@
 // Without a search or filter, only the categories you opened show their words; the open set is remembered.
 
 import { speakButton } from './audio.js';
-import { el, fold, loadWords, ruleHref, storage } from './data.js';
+import { el, errorMessage, fold, loadWords, ruleHref, storage } from './data.js';
 import { categoryPicker } from './picker.js';
 import { initThemeToggle } from './theme.js';
 
@@ -168,5 +168,5 @@ try {
   });
   renderWords();
 } catch (error) {
-  results.replaceChildren(el('p', { class: 'error' }, `${error.message} Run "node scripts/build.mjs" and reload.`));
+  results.replaceChildren(el('p', { class: 'error' }, errorMessage(error)));
 }

@@ -27,6 +27,9 @@ jobs:
           node-version: 24
       - name: Build words.json and rules.json
         run: node scripts/build.mjs
+      # Versions the script and stylesheet URLs, so a phone can't mix cached files from two deploys.
+      - name: Stamp the build version
+        run: node scripts/stamp.mjs
 
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:

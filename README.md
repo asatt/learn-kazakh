@@ -120,6 +120,11 @@ trust your teacher over it. The Kazakh voices are trained on [ISSAI KazakhTTS](h
 3. Push to `main`. The `Deploy site` workflow builds and publishes the site. Pull requests run the build as a
    check without deploying.
 
+Before publishing, the workflow runs `scripts/stamp.mjs`, which adds the build version to every script and stylesheet
+URL. Browsers cache GitHub Pages files for at least 10 minutes, and without the version a phone could run a cached
+old page with new scripts. If a page and its scripts still come from different builds, the page reloads once. The
+script rewrites `site/` in place, so don't run it locally.
+
 ## Security
 
 The site is static, so there is no server to attack. The remaining risks are in the build and the browser:
@@ -152,6 +157,7 @@ The site is static, so there is no server to attack. The remaining risks are in 
 words/                        vocabulary, one Markdown file per category
 scripts/build.mjs             words/*.md → site/data/words.json, with validation
 scripts/serve.mjs             local preview server
+scripts/stamp.mjs             adds the build version to asset URLs before deploy
 scripts/tts.py                pronunciation audio with Piper, configured by tts.json
 scripts/requirements.in       Python dependencies; requirements.txt is the hashed lock file
 site/                         static site: HTML, CSS, and vanilla JavaScript

@@ -1,7 +1,7 @@
 // Quiz page: multiple-choice and typing modes in either direction, with per-word progress in localStorage.
 
 import { playWord, speakButton } from './audio.js';
-import { acceptedAnswers, el, fold, loadWords, normalize, shuffle, storage, wordKey } from './data.js';
+import { acceptedAnswers, el, errorMessage, fold, loadWords, normalize, shuffle, storage, wordKey } from './data.js';
 import { categoryPicker } from './picker.js';
 import { initThemeToggle } from './theme.js';
 
@@ -389,6 +389,6 @@ try {
   wireEvents();
   setup.hidden = false;
 } catch (error) {
-  $('load-error').textContent = `${error.message} Run "node scripts/build.mjs" and reload.`;
+  $('load-error').textContent = errorMessage(error);
   $('load-error').hidden = false;
 }

@@ -3,7 +3,7 @@
 // Rule bodies come from scripts/markdown.mjs as plain data and are built here with DOM calls.
 
 import { speakButton } from './audio.js';
-import { el, loadRules, ruleHref } from './data.js';
+import { el, errorMessage, loadRules, ruleHref } from './data.js';
 import { initThemeToggle } from './theme.js';
 
 const content = document.getElementById('content');
@@ -168,5 +168,5 @@ try {
   ({ rules } = await loadRules());
   render();
 } catch (error) {
-  content.replaceChildren(el('p', { class: 'error' }, `${error.message} Run "node scripts/build.mjs" and reload.`));
+  content.replaceChildren(el('p', { class: 'error' }, errorMessage(error)));
 }

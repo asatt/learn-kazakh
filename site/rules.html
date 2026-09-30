@@ -8,6 +8,8 @@
   <meta http-equiv="Content-Security-Policy"
         content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; media-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'none'; require-trusted-types-for 'script'; trusted-types 'none'">
   <meta name="referrer" content="strict-origin-when-cross-origin">
+  <!-- scripts/stamp.mjs sets the deploy's version; js/data.js reloads the page if it differs from the scripts. -->
+  <meta name="build" content="dev">
   <script src="js/theme-init.js"></script>
   <link rel="stylesheet" href="css/style.css">
   <script type="module" src="js/rules.js"></script>
