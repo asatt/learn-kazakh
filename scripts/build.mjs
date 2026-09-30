@@ -130,10 +130,12 @@ export async function buildWords() {
     const parsed = parseFile(await readFile(path.join(wordsDir, file), 'utf8'), relative);
     const id = file.replace(/\.md$/, '').replace(/^\d+-/, '');
     errors.push(...parsed.errors);
+    const clash = categories.find((cat) => cat.id === id);
+    if (clash) errors.push(`${relative}: category ID "${id}" is already used by words/${clash.file}; rename one file`);
 
     if (!parsed.name) warnings.push(`${relative}: no "# Heading" found, using "${id}" as the category name`);
     if (!parsed.rows.length) warnings.push(`${relative}: no word pairs found`);
-    categories.push({ id, name: parsed.name ?? id, count: parsed.rows.length });
+    categories.push({ id, file, name: parsed.name ?? id, count: parsed.rows.length });
 
     for (const { kk, tr, ru, note, where } of parsed.rows) {
       const key = kk.toLowerCase();

@@ -92,8 +92,9 @@ The site is static, so there is no server to attack. The remaining risks are in 
 
 ## Site features
 
-- **Dictionary:** search both languages and notes as you type, and filter by category. Search ignores case and `ё`,
-  and it treats Kazakh letters like their Russian lookalikes, so `кыз` finds `қыз`. Press `/` to jump to the search box.
+- **Dictionary:** categories are cards that open in place, and the page remembers which ones you opened. Search
+  covers both languages and notes, and it opens every category with a match. Search ignores case and `ё`, and it
+  treats Kazakh letters like their Russian lookalikes, so `кыз` finds `қыз`. Press `/` to jump to the search box.
 - **Quiz, pick mode:** choose the translation from 5–8 options. Keys `1`–`8` select an option.
 - **Quiz, typing mode:** type the translation. An answer that differs only in Kazakh-specific letters counts as
   correct, and the page shows the right spelling. Buttons for `ә ғ қ ң ө ұ ү һ і` help without a Kazakh keyboard layout.

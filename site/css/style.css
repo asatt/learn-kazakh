@@ -292,33 +292,32 @@ input::placeholder {
   font-weight: 400;
 }
 
-.category {
-  margin-top: 24px;
+.container.wide {
+  max-width: 1080px;
 }
 
-.category-head {
+.toolbar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 4px;
+  min-height: 32px;
+}
+
+.toolbar p {
+  margin: 0 auto 0 0;
+}
+
+/* Categories are cards in a grid; an open card spans the full width. On a phone the grid has one column, so the
+   cards behave like an accordion. */
+#results {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
   gap: 12px;
-  margin-bottom: 8px;
+  margin-top: 8px;
 }
 
-.category-head h2 {
-  margin: 0;
-  font-size: 1.25rem;
-}
-
-.category-head .count {
-  color: var(--muted);
-  font-weight: 400;
-  font-size: 1rem;
-}
-
-.word-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
+.category {
+  min-width: 0;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 12px;
@@ -326,22 +325,113 @@ input::placeholder {
   overflow: hidden;
 }
 
+.category.open {
+  grid-column: 1 / -1;
+}
+
+.category-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px 4px 4px;
+}
+
+.category-toggle {
+  flex: 1;
+  justify-content: flex-start;
+  min-width: 0;
+  min-height: 44px;
+  padding: 4px 8px;
+  background: transparent;
+  border: 0;
+  color: var(--text);
+  font-size: 1.0625rem;
+  text-align: left;
+}
+
+div.category-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-left: 12px;
+  font-weight: 600;
+}
+
+button.category-toggle:hover {
+  background: var(--surface-2);
+}
+
+.category-name {
+  overflow-wrap: break-word;
+}
+
+.category-toggle .count {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.chevron {
+  display: inline-block;
+  width: 1em;
+  color: var(--muted);
+  font-size: 1.25rem;
+  line-height: 1;
+  transition: transform 0.15s ease;
+}
+
+.category.open .chevron {
+  transform: rotate(90deg);
+}
+
+/* Words fill two columns on a wide screen. Each row has a top border, which also separates the list from the
+   card header. */
+.word-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr));
+  column-gap: 24px;
+  margin: 0;
+  padding: 0 12px 4px;
+  list-style: none;
+}
+
 .word {
   display: grid;
-  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
-  gap: 2px 16px;
-  padding: 10px 16px;
+  grid-template-columns: 28px minmax(0, 3fr) minmax(0, 2fr);
+  align-items: center;
+  gap: 2px 10px;
+  padding: 6px 0;
   border-top: 1px solid var(--border);
 }
 
-.word:first-child {
-  border-top: 0;
+.word .kk {
+  font-weight: 600;
 }
 
-.word .kk {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
+/* Transcription, for example [sæˈlem]. */
+.tr {
+  color: var(--muted);
+  font-size: 0.875rem;
+  font-weight: 400;
+}
+
+.word .tr {
+  white-space: nowrap;
+}
+
+.word .ru {
+  overflow-wrap: break-word;
+}
+
+.word .note {
+  grid-column: 2 / -1;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+.word .note strong {
+  color: var(--text);
   font-weight: 600;
 }
 
@@ -372,7 +462,9 @@ input::placeholder {
 }
 
 .word .speak {
-  margin-top: -3px;
+  width: 28px;
+  height: 28px;
+  min-height: 28px;
 }
 
 .prompt-row {
@@ -417,20 +509,6 @@ input::placeholder {
   text-align: center;
   color: var(--muted);
   font-size: 0.8125rem;
-}
-
-/* Transcription, for example [sæˈlem]. */
-.tr {
-  display: block;
-  color: var(--muted);
-  font-size: 0.875rem;
-  font-weight: 400;
-}
-
-.word .note {
-  grid-column: 1 / -1;
-  color: var(--muted);
-  font-size: 0.875rem;
 }
 
 mark {
@@ -777,6 +855,10 @@ legend {
 }
 
 @media (max-width: 560px) {
+  .word {
+    grid-template-columns: 28px minmax(0, 1fr) minmax(0, 1fr);
+  }
+
   .site-header .container {
     gap: 8px;
   }
@@ -794,4 +876,8 @@ legend {
   .card {
     padding: 16px;
   }
+}
+
+.missed-list .tr {
+  margin-left: 6px;
 }
