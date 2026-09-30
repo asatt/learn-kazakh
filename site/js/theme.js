@@ -1,11 +1,12 @@
 // Theme toggle that cycles Auto → Light → Dark. "Auto" follows the operating system setting.
 // theme-init.js applies the saved theme before first paint to avoid a flash.
 
-import { storage } from './data.js';
+import { el, storage } from './data.js';
 
 const STORAGE_KEY = 'lk.theme';
 const MODES = ['auto', 'light', 'dark'];
-const LABELS = { auto: '◐ Auto', light: '☀ Light', dark: '☾ Dark' };
+const ICONS = { auto: '◐', light: '☀', dark: '☾' };
+const LABELS = { auto: 'Auto', light: 'Light', dark: 'Dark' };
 
 export function initThemeToggle(button) {
   let mode = storage.get(STORAGE_KEY, 'auto');
@@ -14,8 +15,10 @@ export function initThemeToggle(button) {
   const apply = () => {
     if (mode === 'auto') delete document.documentElement.dataset.theme;
     else document.documentElement.dataset.theme = mode;
-    button.textContent = LABELS[mode];
+    // Narrow screens hide the label and show only the icon, so the button carries its name in aria-label.
+    button.replaceChildren(ICONS[mode], el('span', { class: 'theme-label' }, LABELS[mode]));
     button.title = `Theme: ${mode}. Click to change.`;
+    button.setAttribute('aria-label', `Theme: ${LABELS[mode]}`);
   };
 
   button.addEventListener('click', () => {

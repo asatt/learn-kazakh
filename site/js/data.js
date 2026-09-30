@@ -1,12 +1,25 @@
-// Word loading, text matching, storage, and DOM helpers shared by both pages.
+// Data loading, text matching, storage, and DOM helpers shared by all pages.
 
 // Kazakh-specific letters mapped to the closest Russian letter, so "кыз" still finds "қыз".
 const KAZAKH_FOLD = { ә: 'а', ғ: 'г', қ: 'к', ң: 'н', ө: 'о', ұ: 'у', ү: 'у', һ: 'х', і: 'и' };
 
-export async function loadWords() {
-  const res = await fetch('data/words.json', { cache: 'no-cache' });
-  if (!res.ok) throw new Error(`Cannot load data/words.json (HTTP ${res.status}).`);
+async function loadJson(url) {
+  const res = await fetch(url, { cache: 'no-cache' });
+  if (!res.ok) throw new Error(`Cannot load ${url} (HTTP ${res.status}).`);
   return res.json();
+}
+
+export function loadWords() {
+  return loadJson('data/words.json');
+}
+
+export function loadRules() {
+  return loadJson('data/rules.json');
+}
+
+// Links to a rule on rules.html, or to one of its sections. The section heading uses "rule/section" as its ID.
+export function ruleHref(id, section = '') {
+  return `rules.html#${section ? `${id}/${section}` : id}`;
 }
 
 // Lowercases, treats "ё" as "е", and drops punctuation so answers compare on letters only.

@@ -13,7 +13,7 @@ help: ## List the targets
 serve: ## Preview the site on http://localhost:8000; set PORT to change the port
 	PORT=$(PORT) node scripts/serve.mjs
 
-build: ## Build site/data/words.json from words/*.md and validate the tables
+build: ## Build the word list and rules into site/data/ and check the tables and links
 	node scripts/build.mjs
 
 audio: build $(PYTHON) ## Generate pronunciation audio for new or changed words
@@ -25,7 +25,7 @@ $(PYTHON): scripts/requirements.txt
 	$(VENV)/bin/pip install --require-hashes -r scripts/requirements.txt
 	@touch $(PYTHON)
 
-clean: ## Delete the generated word list and audio
+clean: ## Delete the generated word list, rules, and audio
 	rm -rf site/data site/audio
 
 distclean: clean ## Also delete the Python environment and the cached voice model

@@ -1,7 +1,8 @@
 # Learn Kazakh
 
 My Kazakh–Russian vocabulary from lessons, plus a small site to search it and practice it. The word lists are plain
-Markdown in [`words/`](words/). A GitHub Action turns them into a dictionary and quiz on GitHub Pages.
+Markdown in [`words/`](words/) and the grammar notes are in [`rules/`](rules/). A GitHub Action turns them into a
+dictionary, a quiz, and a rules page on GitHub Pages.
 
 ## Add words
 
@@ -18,7 +19,8 @@ Each file in `words/` is one category. The `# Heading` is the category name show
 ```
 
 - Columns are matched by header name, so their order doesn't matter. `Қазақша` and `Русский` are required;
-  `Транскрипция` and `Заметка` are optional, both as columns and per row.
+  `Транскрипция`, `Заметка`, and `Правило` are optional, both as columns and per row.
+- Use `Правило` to link a word to the rules it follows; see [Add rules](#add-rules).
 - Write the transcription in any style you like. The starter words use approximate IPA with `ˈ` before the stressed
   syllable; check them with your teacher.
 - Separate alternative translations with commas. In typing mode, any one of them counts as correct.
@@ -29,6 +31,45 @@ Each file in `words/` is one category. The `# Heading` is the category name show
 The build fails on a malformed row and prints the file and line number. It warns about a Kazakh word defined twice
 but still builds.
 
+## Add rules
+
+Each file in `rules/` is one grammar rule. The `# Title` line names the rule, and the rest is ordinary Markdown: your
+own explanation, links to other sites, or both. [`rules/01-plural.md`](rules/01-plural.md) is an example to copy.
+
+```markdown
+# Множественное число
+
+Окончание зависит от последнего звука слова.
+
+## Исключения
+
+- ол → олар
+
+## Ссылки
+
+- [Kazakh grammar](https://en.wikipedia.org/wiki/Kazakh_grammar)
+```
+
+- The file name sets the rule ID: `01-plural.md` becomes `plural`. The numeric prefix only sets the order.
+- `##` and `###` headings start sections. A section's ID is its heading in lowercase with spaces replaced by hyphens,
+  so `## После числительных` becomes `после-числительных`.
+- Supported syntax: paragraphs, bullet and numbered lists (not nested), tables, `>` quotes, fenced code blocks,
+  `---` dividers, `**bold**`, `*italic*`, `` `code` ``, and links. Anything else shows as plain text.
+- A link goes to another site (`https://…`), to another rule (`[падежи](cases)`), or to a section
+  (`[исключения](plural#исключения)`, or `#исключения` within the same rule).
+
+Link a word to rules in the `Правило` column of its table. Separate several rules with commas:
+
+```markdown
+| Қазақша | Русский | Правило           |
+| ------- | ------- | ----------------- |
+| олар    | они     | plural#исключения |
+| сіздер  | вы      | plural, pronouns  |
+```
+
+The dictionary shows these links under the word, and each rule page lists the words that link to it. The build fails
+on a link to a missing rule or section and prints the IDs you can use.
+
 ## Preview locally
 
 Requires Node.js 20 or later. No `npm install` needed.
@@ -37,8 +78,8 @@ Requires Node.js 20 or later. No `npm install` needed.
 make serve
 ```
 
-Open <http://localhost:8000>. The server rebuilds the word list on every request, so edit a file and reload. Run
-`make serve PORT=3000` to use another port.
+Open <http://localhost:8000>. The server rebuilds the word list and rules on every request, so edit a file and
+reload. Run `make serve PORT=3000` to use another port.
 
 Play buttons stay disabled until you generate the audio. This needs Python 3.10 or later and downloads the voice model
 (about 130 MB) on the first run:
@@ -48,7 +89,7 @@ make audio
 ```
 
 The first run creates a Python environment in `.venv/`. Run `make` to see the other targets, such as `make build` to
-check the word tables and `make clean` to delete the generated files.
+check the word tables and rule links, and `make clean` to delete the generated files.
 
 ## Pronunciation audio
 

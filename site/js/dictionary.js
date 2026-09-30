@@ -2,7 +2,7 @@
 // Without a search or filter, only the categories you opened show their words; the open set is remembered.
 
 import { speakButton } from './audio.js';
-import { el, fold, loadWords, storage } from './data.js';
+import { el, fold, loadWords, ruleHref, storage } from './data.js';
 import { categoryPicker } from './picker.js';
 import { initThemeToggle } from './theme.js';
 
@@ -45,6 +45,12 @@ function renderWord(word) {
     ),
     el('span', { class: 'ru', lang: 'ru' }, word.ru),
     word.note && el('p', { class: 'note' }, el('strong', {}, 'Note:'), ' ', word.note),
+    word.rules.length > 0 &&
+      el(
+        'p',
+        { class: 'rule-links' },
+        word.rules.map((rule) => el('a', { href: ruleHref(rule.id, rule.section), lang: 'ru' }, `§ ${rule.title}`)),
+      ),
   );
 }
 
