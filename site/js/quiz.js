@@ -36,6 +36,7 @@ function loadSettings() {
   return {
     mode: ['choice', 'typing'].includes(saved.mode) ? saved.mode : 'choice',
     direction: ['kk-ru', 'ru-kk', 'mixed'].includes(saved.direction) ? saved.direction : 'kk-ru',
+    buttonSide: ['right', 'left'].includes(saved.buttonSide) ? saved.buttonSide : 'right',
     options: String(saved.options ?? '6'),
     questionCount: String(saved.questionCount ?? '20'),
     showTranscription: saved.showTranscription ?? true,
@@ -49,6 +50,7 @@ function readSettings() {
   return {
     mode: form.get('mode'),
     direction: form.get('direction'),
+    buttonSide: form.get('buttonSide'),
     options: form.get('options'),
     questionCount: form.get('questionCount'),
     showTranscription: form.has('showTranscription'),
@@ -60,6 +62,7 @@ function readSettings() {
 function renderSetup() {
   setup.elements.mode.value = settings.mode;
   setup.elements.direction.value = settings.direction;
+  setup.elements.buttonSide.value = settings.buttonSide;
   setup.elements.options.value = settings.options;
   setup.elements.questionCount.value = settings.questionCount;
   setup.elements.showTranscription.checked = settings.showTranscription;
@@ -138,6 +141,7 @@ function startSession(questions) {
   session = { questions, index: 0, correct: 0, missed: [], answered: false };
   setup.hidden = true;
   summary.hidden = true;
+  play.dataset.buttonSide = settings.buttonSide;
   play.hidden = false;
   showQuestion();
 }

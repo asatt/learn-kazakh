@@ -887,7 +887,18 @@ legend {
 }
 
 .next-row {
+  display: flex;
   margin-top: 16px;
+}
+
+/* The quiz setting "Button side: Right" moves the play, Next, and Check buttons to the right edge for thumb reach. */
+#play[data-button-side="right"] #prompt-speak {
+  margin-left: auto;
+}
+
+#play[data-button-side="right"] .next-row,
+#play[data-button-side="right"] .typing .actions {
+  justify-content: flex-end;
 }
 
 .score-big {
