@@ -118,21 +118,21 @@ function makeQuestion(word, direction) {
 }
 
 // Distractors come from the same category first, so they stay plausible. Words whose prompt matches this
-// question's prompt are skipped, since they would be a second correct answer.
+// question's prompt are skipped, since they would be a second correct answer. Returns the words behind the options.
 function buildChoices(question, count) {
   const { word, from, to } = question;
   const seen = new Set([normalize(question.answer)]);
   const promptText = normalize(question.prompt);
   const sameCategory = shuffle(data.words.filter((w) => w.category === word.category));
   const otherCategories = shuffle(data.words.filter((w) => w.category !== word.category));
-  const options = [question.answer];
+  const options = [word];
 
   for (const candidate of [...sameCategory, ...otherCategories]) {
     if (options.length >= count) break;
     const text = normalize(candidate[to]);
     if (seen.has(text) || normalize(candidate[from]) === promptText) continue;
     seen.add(text);
-    options.push(candidate[to]);
+    options.push(candidate);
   }
   return shuffle(options);
 }
@@ -174,12 +174,12 @@ function showQuestion() {
     $('typing').hidden = true;
     $('choices').hidden = false;
     $('choices').replaceChildren(
-      ...buildChoices(question, Number(settings.options)).map((text, i) =>
+      ...buildChoices(question, Number(settings.options)).map((option, i) =>
         el(
           'button',
-          { type: 'button', class: 'choice', lang: question.to, onclick: (e) => answerChoice(e.currentTarget, text) },
+          { type: 'button', class: 'choice', lang: question.to, onclick: (e) => answerChoice(e.currentTarget, option) },
           el('kbd', {}, String(i + 1)),
-          el('span', {}, text),
+          el('span', {}, option[question.to]),
         ),
       ),
     );
@@ -197,16 +197,16 @@ function showQuestion() {
   }
 }
 
-function answerChoice(button, text) {
+function answerChoice(button, picked) {
   if (session.answered) return;
   const question = session.questions[session.index];
-  const correct = text === question.answer;
+  const correct = picked[question.to] === question.answer;
   for (const choice of $('choices').children) {
     choice.disabled = true;
     if (choice.querySelector('span').textContent === question.answer) choice.classList.add('correct');
   }
   if (!correct) button.classList.add('wrong');
-  finishAnswer(correct ? 'correct' : 'wrong');
+  finishAnswer(correct ? 'correct' : 'wrong', false, correct ? null : picked);
 }
 
 // Returns "correct", "almost" (right except for Kazakh-specific letters), "wrong", or "empty".
@@ -238,7 +238,8 @@ function answerTyped(skipped) {
   finishAnswer(result, skipped);
 }
 
-function finishAnswer(result, skipped = false) {
+// `picked` is the word behind a wrong multiple-choice option; its translation is shown too.
+function finishAnswer(result, skipped = false, picked = null) {
   const question = session.questions[session.index];
   const correct = result !== 'wrong';
   session.answered = true;
@@ -264,6 +265,7 @@ function finishAnswer(result, skipped = false) {
       question.to === 'kk' && speakButton(question.word),
     ),
     question.word.note && el('p', { class: 'small' }, question.word.note),
+    picked && pickedLine(picked, question),
   );
   feedback.hidden = false;
   if (question.to === 'kk' && settings.autoPlay) playWord(question.word, feedback.querySelector('.speak'));
@@ -272,6 +274,19 @@ function finishAnswer(result, skipped = false) {
   $('progress-fill').style.width = `${((session.index + 1) / session.questions.length) * 100}%`;
   $('next').hidden = false;
   $('next').focus();
+}
+
+// "You picked X, which means Y." Transcription and the play button go next to whichever side is Kazakh.
+function pickedLine(picked, question) {
+  const part = (lang) =>
+    el(
+      'span',
+      { lang },
+      picked[lang],
+      lang === 'kk' && picked.tr && ` ${picked.tr}`,
+      lang === 'kk' && speakButton(picked),
+    );
+  return el('p', { class: 'small' }, 'You picked ', part(question.to), ', which means ', part(question.from), '.');
 }
 
 function nextQuestion() {
