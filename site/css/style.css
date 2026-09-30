@@ -241,6 +241,34 @@ select {
   font: inherit;
 }
 
+/* Selects draw the same chevron as the category picker instead of the browser's arrow, which sits against the
+   border and differs between browsers. The chevron lives on a wrapper because a <select> can't have ::after. */
+select {
+  appearance: none;
+  padding-right: 40px;
+}
+
+.select {
+  position: relative;
+}
+
+.select::after {
+  position: absolute;
+  top: 50%;
+  right: 14px;
+  translate: 0 -50%;
+  pointer-events: none;
+}
+
+.select::after,
+.dropdown summary::after {
+  content: "›";
+  color: var(--muted);
+  font-size: 1.25rem;
+  line-height: 1;
+  transform: rotate(90deg);
+}
+
 input::placeholder {
   color: var(--muted);
 }
@@ -259,37 +287,8 @@ input::placeholder {
   font-size: 1.0625rem;
 }
 
-.chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+.category-filter {
   margin: 8px 0 4px;
-}
-
-.chip {
-  min-height: 32px;
-  padding: 4px 12px;
-  border-radius: 999px;
-  border: 1px solid var(--border);
-  background: var(--surface);
-  color: var(--text);
-  font-weight: 500;
-  font-size: 0.9375rem;
-}
-
-.chip:hover {
-  background: var(--surface-2);
-}
-
-.chip[aria-pressed="true"] {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: var(--accent-text);
-}
-
-.chip .count {
-  opacity: 0.7;
-  font-weight: 400;
 }
 
 .container.wide {
@@ -580,8 +579,7 @@ legend {
   background: var(--accent-soft);
 }
 
-.segmented input,
-.category-picks input {
+.segmented input {
   accent-color: var(--accent);
 }
 
@@ -597,18 +595,86 @@ legend {
   font-weight: 600;
 }
 
-.category-picks {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 6px 16px;
-  margin-bottom: 8px;
+/* Category picker (picker.js): a <details> styled like a select. The open panel floats over the content below. */
+.dropdown {
+  position: relative;
 }
 
-.category-picks label {
+.dropdown summary {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 8px;
+  min-height: 44px;
+  padding: 8px 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
   cursor: pointer;
+  list-style: none;
+}
+
+.dropdown summary::-webkit-details-marker {
+  display: none;
+}
+
+.dropdown summary::after {
+  transition: transform 0.15s ease;
+}
+
+.dropdown[open] summary::after {
+  transform: rotate(-90deg);
+}
+
+.dropdown-panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 10;
+  max-height: min(70vh, 480px);
+  overflow-y: auto;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  box-shadow: var(--shadow), 0 8px 24px rgb(0 0 0 / 0.12);
+}
+
+.dropdown-panel .actions {
+  margin-top: 12px;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  min-height: 36px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 500;
+  font-size: 0.9375rem;
+}
+
+.chip:hover {
+  background: var(--surface-2);
+}
+
+.chip[aria-pressed="true"] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-text);
+}
+
+.chip .count {
+  opacity: 0.7;
+  font-weight: 400;
 }
 
 .actions {

@@ -50,21 +50,25 @@
       <fieldset class="settings-row">
         <div id="options-field">
           <label for="options">Options per question</label>
-          <select id="options" name="options">
-            <option value="5">5</option>
-            <option value="6">6</option>
-            <option value="7">7</option>
-            <option value="8">8</option>
-          </select>
+          <div class="select">
+            <select id="options" name="options">
+              <option value="5">5</option>
+              <option value="6">6</option>
+              <option value="7">7</option>
+              <option value="8">8</option>
+            </select>
+          </div>
         </div>
         <div>
           <label for="question-count">Questions</label>
-          <select id="question-count" name="questionCount">
-            <option value="10">10</option>
-            <option value="20">20</option>
-            <option value="50">50</option>
-            <option value="all">All selected words</option>
-          </select>
+          <div class="select">
+            <select id="question-count" name="questionCount">
+              <option value="10">10</option>
+              <option value="20">20</option>
+              <option value="50">50</option>
+              <option value="all">All selected words</option>
+            </select>
+          </div>
         </div>
       </fieldset>
 
@@ -77,11 +81,7 @@
 
       <fieldset>
         <legend>Categories</legend>
-        <div id="category-picks" class="category-picks"></div>
-        <div class="actions">
-          <button id="select-all" class="ghost small" type="button">Select all</button>
-          <button id="select-none" class="ghost small" type="button">Clear</button>
-        </div>
+        <details id="category-picker"></details>
       </fieldset>
 
       <div class="actions">

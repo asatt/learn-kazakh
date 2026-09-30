@@ -2,6 +2,7 @@
 
 import { playWord, speakButton } from './audio.js';
 import { acceptedAnswers, el, fold, loadWords, normalize, shuffle, storage, wordKey } from './data.js';
+import { categoryPicker } from './picker.js';
 import { initThemeToggle } from './theme.js';
 
 const SETTINGS_KEY = 'lk.quiz.settings';
@@ -18,6 +19,8 @@ const answerInput = $('answer');
 let data;
 let stats = storage.get(STATS_KEY, {});
 let settings;
+// Category ids picked in the setup form; kept outside the form because the picker has no form inputs.
+let pickedCategories = [];
 let session;
 
 // ---- Settings ----
@@ -50,7 +53,7 @@ function readSettings() {
     questionCount: form.get('questionCount'),
     showTranscription: form.has('showTranscription'),
     autoPlay: form.has('autoPlay'),
-    categories: [...setup.querySelectorAll('#category-picks input:checked')].map((input) => input.value),
+    categories: pickedCategories,
   };
 }
 
@@ -61,23 +64,15 @@ function renderSetup() {
   setup.elements.questionCount.value = settings.questionCount;
   setup.elements.showTranscription.checked = settings.showTranscription;
   setup.elements.autoPlay.checked = settings.autoPlay;
-  $('category-picks').replaceChildren(
-    ...data.categories.map((cat) =>
-      el(
-        'label',
-        {},
-        el('input', {
-          type: 'checkbox',
-          value: cat.id,
-          checked: settings.categories.includes(cat.id),
-          onchange: updateSetupState,
-        }),
-        `${cat.name} `,
-        el('span', { class: 'muted' }, String(cat.count)),
-      ),
-    ),
-  );
-  updateSetupState();
+  categoryPicker($('category-picker'), {
+    categories: data.categories,
+    selected: settings.categories,
+    emptyLabel: 'No categories selected',
+    onChange: (ids) => {
+      pickedCategories = ids;
+      updateSetupState();
+    },
+  });
 }
 
 function updateSetupState() {
@@ -337,14 +332,6 @@ function wireEvents() {
     startNewSession();
   });
 
-  $('select-all').addEventListener('click', () => {
-    for (const input of setup.querySelectorAll('#category-picks input')) input.checked = true;
-    updateSetupState();
-  });
-  $('select-none').addEventListener('click', () => {
-    for (const input of setup.querySelectorAll('#category-picks input')) input.checked = false;
-    updateSetupState();
-  });
   $('reset-progress').addEventListener('click', () => {
     if (!confirm('Reset progress for all words? The quiz will stop favoring words you missed before.')) return;
     stats = {};

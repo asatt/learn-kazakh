@@ -3,19 +3,21 @@
 
 import { speakButton } from './audio.js';
 import { el, fold, loadWords, storage } from './data.js';
+import { categoryPicker } from './picker.js';
 import { initThemeToggle } from './theme.js';
 
 const OPEN_KEY = 'lk.dictionary.open';
 
 const search = document.getElementById('search');
-const chips = document.getElementById('chips');
+const filter = document.getElementById('category-filter');
 const summary = document.getElementById('summary');
 const results = document.getElementById('results');
 const expandAll = document.getElementById('expand-all');
 const collapseAll = document.getElementById('collapse-all');
 
 let data;
-let activeCategory = 'all';
+// Picked category ids; an empty list shows every category.
+let picked = [];
 let open = new Set(storage.get(OPEN_KEY, []));
 
 function plural(count) {
@@ -27,29 +29,6 @@ function setOpen(ids) {
   storage.set(OPEN_KEY, [...open]);
 }
 
-function renderChips() {
-  const options = [{ id: 'all', name: 'All', count: data.words.length }, ...data.categories];
-  chips.replaceChildren(
-    ...options.map((cat) =>
-      el(
-        'button',
-        {
-          type: 'button',
-          class: 'chip',
-          'aria-pressed': String(cat.id === activeCategory),
-          onclick: () => {
-            activeCategory = cat.id;
-            renderChips();
-            renderWords();
-          },
-        },
-        cat.name,
-        ' ',
-        el('span', { class: 'count' }, String(cat.count)),
-      ),
-    ),
-  );
-}
 
 function renderWord(word) {
   return el(
@@ -114,13 +93,13 @@ function renderCategory(cat, words, { expanded, forced, countText }) {
 
 function renderWords() {
   const query = fold(search.value);
-  const filtered = activeCategory !== 'all';
+  const filtered = picked.length > 0;
   const forced = Boolean(query) || filtered;
   const cards = [];
   let total = 0;
 
   for (const cat of data.categories) {
-    if (filtered && cat.id !== activeCategory) continue;
+    if (filtered && !picked.includes(cat.id)) continue;
     const all = data.words.filter((w) => w.category === cat.id);
     const words = query ? all.filter((w) => w.searchText.includes(query)) : all;
     if (query && !words.length) continue;
@@ -172,7 +151,15 @@ try {
   // Drop categories that no longer exist, so "Expand all" and "Collapse all" count correctly.
   setOpen([...open].filter((id) => data.categories.some((cat) => cat.id === id)));
   for (const word of data.words) word.searchText = fold(`${word.kk} ${word.ru} ${word.note}`);
-  renderChips();
+  categoryPicker(filter, {
+    categories: data.categories,
+    selected: [],
+    emptyLabel: 'All categories',
+    onChange: (ids) => {
+      picked = ids;
+      renderWords();
+    },
+  });
   renderWords();
 } catch (error) {
   results.replaceChildren(el('p', { class: 'error' }, `${error.message} Run "node scripts/build.mjs" and reload.`));

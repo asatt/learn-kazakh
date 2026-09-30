@@ -34,20 +34,21 @@ but still builds.
 Requires Node.js 20 or later. No `npm install` needed.
 
 ```sh
-node scripts/serve.mjs
+make serve
 ```
 
-Open <http://localhost:8000>. The server rebuilds the word list on every request, so edit a file and reload.
+Open <http://localhost:8000>. The server rebuilds the word list on every request, so edit a file and reload. Run
+`make serve PORT=3000` to use another port.
 
 Play buttons stay disabled until you generate the audio. This needs Python 3.10 or later and downloads the voice model
 (about 130 MB) on the first run:
 
 ```sh
-python3 -m venv .venv
-.venv/bin/pip install --require-hashes -r scripts/requirements.txt
-node scripts/build.mjs
-.venv/bin/python scripts/tts.py
+make audio
 ```
+
+The first run creates a Python environment in `.venv/`. Run `make` to see the other targets, such as `make build` to
+check the word tables and `make clean` to delete the generated files.
 
 ## Pronunciation audio
 
@@ -114,4 +115,5 @@ scripts/tts.py                pronunciation audio with Piper, configured by tts.
 scripts/requirements.in       Python dependencies; requirements.txt is the hashed lock file
 site/                         static site: HTML, CSS, and vanilla JavaScript
 .github/workflows/pages.yml   build and deploy to GitHub Pages
+Makefile                      shortcuts for the commands above; run `make` to list them
 ```
