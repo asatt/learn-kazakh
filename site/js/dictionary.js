@@ -2,8 +2,9 @@
 // Without a search or filter, only the categories you opened show their words; the open set is remembered.
 
 import { speakButton } from './audio.js';
-import { el, errorMessage, fold, loadWords, ruleHref, storage } from './data.js';
+import { el, errorMessage, loadWords, ruleHref, storage } from './data.js';
 import { categoryPicker } from './picker.js';
+import { findWords, searchIndex } from './search.js';
 import { initThemeToggle } from './theme.js';
 
 const OPEN_KEY = 'lk.dictionary.open';
@@ -98,16 +99,17 @@ function renderCategory(cat, words, { expanded, forced, countText }) {
 }
 
 function renderWords() {
-  const query = fold(search.value);
+  const found = findWords(search.value, data.words);
+  const query = found !== null;
   const filtered = picked.length > 0;
-  const forced = Boolean(query) || filtered;
+  const forced = query || filtered;
   const cards = [];
   let total = 0;
 
   for (const cat of data.categories) {
     if (filtered && !picked.includes(cat.id)) continue;
     const all = data.words.filter((w) => w.category === cat.id);
-    const words = query ? all.filter((w) => w.searchText.includes(query)) : all;
+    const words = query ? all.filter((w) => found.has(w)) : all;
     if (query && !words.length) continue;
     total += words.length;
     cards.push(
@@ -156,7 +158,7 @@ try {
   data = await loadWords();
   // Drop categories that no longer exist, so "Expand all" and "Collapse all" count correctly.
   setOpen([...open].filter((id) => data.categories.some((cat) => cat.id === id)));
-  for (const word of data.words) word.searchText = fold(`${word.kk} ${word.ru} ${word.note}`);
+  for (const word of data.words) word.search = searchIndex(word);
   categoryPicker(filter, {
     categories: data.categories,
     selected: [],

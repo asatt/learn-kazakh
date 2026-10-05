@@ -254,7 +254,8 @@ function finishAnswer(result, skipped = false, picked = null) {
   }[result];
   const feedback = $('feedback');
   feedback.className = `feedback ${result}`;
-  feedback.replaceChildren(
+  // replaceChildren() turns null into the text "null", so the missing lines are filtered out first.
+  const lines = [
     el(
       'p',
       {},
@@ -266,7 +267,8 @@ function finishAnswer(result, skipped = false, picked = null) {
     ),
     question.word.note && el('p', { class: 'small' }, question.word.note),
     picked && pickedLine(picked, question),
-  );
+  ];
+  feedback.replaceChildren(...lines.filter(Boolean));
   feedback.hidden = false;
   if (question.to === 'kk' && settings.autoPlay) playWord(question.word, feedback.querySelector('.speak'));
 
